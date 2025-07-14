@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 export const crearUsuario = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+): Promise<void> => {
   const {
     rut,
     nombre,
@@ -24,10 +24,11 @@ export const crearUsuario = async (
   } = req.body;
 
   if (!rut || !nombre || !p_apellido || !password || !email || !telefono || !licencia) {
-    return res.status(400).json({
+    res.status(400).json({
       message: "Faltan campos obligatorios",
       camposFaltantes: ["rut", "nombre", "p_apellido", "email", "password", "telefono", "licencia"],
     });
+    return;
   }
 
   try {
@@ -38,9 +39,10 @@ export const crearUsuario = async (
     });
 
     if (existe) {
-      return res.status(409).json({
+      res.status(409).json({
         message: "Ya existe un usuario con ese RUT o Email",
       });
+      return;
     }
 
     const hashedPassword = await hash(password, 10);
@@ -63,48 +65,53 @@ export const crearUsuario = async (
       },
     });
 
-    return res.status(201).json({
+    res.status(201).json({
       message: "Usuario creado correctamente",
       data: usuarioCreado,
     });
+    return;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         const campos = (error.meta as any)?.target?.join(", ");
-        return res.status(409).json({
+        res.status(409).json({
           message: `Ya existe un usuario con el mismo valor en: ${campos}`,
         });
+        return;
       }
     }
 
     console.error("Error inesperado al crear usuario:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error interno al crear usuario",
       error: error instanceof Error ? error.message : String(error),
     });
+    return;
   }
 };
 
 export const obtenerUsuarios = async (
   _req: Request,
   res: Response,
-): Promise<Response> => {
+): Promise<void> => {
   try {
     const usuarios = await prisma.usuario.findMany();
-    return res.status(200).json(usuarios);
+    res.status(200).json(usuarios);
+    return;
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error al obtener los usuarios",
       error: error instanceof Error ? error.message : String(error),
     });
+    return;
   }
 };
 
 export const obtenerUsuarioPorRut = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+): Promise<void> => {
   const { rut } = req.params;
 
   try {
@@ -113,23 +120,26 @@ export const obtenerUsuarioPorRut = async (
     });
 
     if (!usuario) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+      res.status(404).json({ message: "Usuario no encontrado" });
+      return;
     }
 
-    return res.status(200).json(usuario);
+    res.status(200).json(usuario);
+    return;
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error al obtener el usuario",
       error: error instanceof Error ? error.message : String(error),
     });
+    return;
   }
 };
 
 export const actualizarUsuario = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+): Promise<void> => {
   const { rut } = req.params;
   const {
     nombre,
@@ -170,23 +180,25 @@ export const actualizarUsuario = async (
       },
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Usuario actualizado correctamente",
       data: usuarioActualizado,
     });
+    return;
   } catch (error) {
     console.error("Error al actualizar el usuario:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error al actualizar el usuario",
       error: error instanceof Error ? error.message : String(error),
     });
+    return;
   }
 };
 
 export const actualizarParcialUsuario = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+): Promise<void> => {
   const { rut } = req.params;
   const data = req.body;
 
@@ -196,9 +208,10 @@ export const actualizarParcialUsuario = async (
     });
 
     if (!usuarioExistente) {
-      return res.status(404).json({
+      res.status(404).json({
         message: `No se encontró ningún usuario con rut: ${rut}`,
       });
+      return;
     }
 
     if (data.password) {
@@ -210,23 +223,25 @@ export const actualizarParcialUsuario = async (
       data,
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Usuario actualizado parcialmente",
       data: usuarioActualizado,
     });
+    return;
   } catch (error) {
     console.error("Error al actualizar parcialmente:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error al actualizar el usuario",
       error: error instanceof Error ? error.message : String(error),
     });
+    return;
   }
 };
 
 export const eliminarUsuario = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+): Promise<void> => {
   const { rut } = req.params;
 
   try {
@@ -235,23 +250,26 @@ export const eliminarUsuario = async (
     });
 
     if (!usuarioExistente) {
-      return res.status(404).json({
+      res.status(404).json({
         message: `No se encontró ningún usuario con rut: ${rut}`,
       });
+      return;
     }
 
     await prisma.usuario.delete({
       where: { rut },
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       message: `Usuario con rut ${rut} eliminado correctamente`,
     });
+    return;
   } catch (error) {
     console.error("Error al eliminar usuario:", error);
-    return res.status(500).json({
+    res.status(500).json({
       message: "Error al eliminar el usuario",
       error: error instanceof Error ? error.message : String(error),
     });
+    return;
   }
 };
