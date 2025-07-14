@@ -13,12 +13,6 @@ enum Rol {
   Admin
 }
 
-// Enum para el estado de entidades
-enum Estado {
-  Activo
-  Inactivo
-  Pendiente
-}
 
 model Usuario {
   rut           String  @id
@@ -33,7 +27,7 @@ model Usuario {
   vencLicencia  DateTime?
   telEmergencia Int?
   direccion     String?
-  estado        Estado  @default(Activo)
+  estado        String?  
 }
 
 model Camion {
@@ -54,7 +48,7 @@ model Camion {
   fRevisionTecnica    DateTime
   fVencimientoSeguro  DateTime
   permisoCirculacion  DateTime
-  estado              Estado     @default(Activo)
+  estado              String?    
 
   mantenciones        Mantencion[]
   alertas             Alerta[]
@@ -66,7 +60,7 @@ model Mantencion {
   tipoMantencion String
   fecha          DateTime
   descripcion    String
-  estado         Estado    @default(Activo)
+  estado         String?    
 
   camion         Camion    @relation(fields: [patenteCamion], references: [patente])
 }
@@ -77,7 +71,7 @@ model Alerta {
   tipoAlerta     String
   fecha          DateTime
   descripcion    String
-  estado         Estado    @default(Activo)
+  estado         String?   
 
   camion         Camion    @relation(fields: [patenteCamion], references: [patente])
 }
