@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import prisma from "../models/prisma"; // Usa un solo PrismaClient
+import prisma from "../models/prisma";
+import { hash } from "bcrypt";
 
 export const crearUsuario = async (
   req: Request,
@@ -21,15 +22,21 @@ export const crearUsuario = async (
     estado,
   } = req.body;
 
+  if (!rut || !nombre || !p_apellido || !password || !email) {
+    res.status(400).json({ message: "Faltan datos obligatorios" });
+    return;
+  }
+
   try {
-    // 1. Crear usuario
-    const crearUsuario = await prisma.usuario.create({
+    const hashedPassword = await hash(password, 10);
+
+    const usuarioCreado = await prisma.usuario.create({
       data: {
         rut,
         nombre,
         p_apellido,
         m_apellido: m_apellido || null,
-        password,
+        password: hashedPassword,
         email,
         telefono,
         rol,
@@ -41,25 +48,22 @@ export const crearUsuario = async (
       },
     });
 
-    // 3. Respuesta
     res.status(201).json({
       message: "Usuario creado correctamente",
-      data: {
-        crearUsuario,
-      },
+      data: usuarioCreado,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       message: "Error al crear el usuario",
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
 // Obtener todos los usuarios
 export const obtenerUsuarios = async (
-  req: Request,
+  _req: Request,
   res: Response,
 ): Promise<void> => {
   try {
@@ -67,7 +71,10 @@ export const obtenerUsuarios = async (
     res.status(200).json(usuarios);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al obtener los usuarios", error });
+    res.status(500).json({
+      message: "Error al obtener los usuarios",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
@@ -91,10 +98,14 @@ export const obtenerUsuarioPorRut = async (
     res.status(200).json(usuario);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al obtener el usuario", error });
+    res.status(500).json({
+      message: "Error al obtener el usuario",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
+// Actualizar usuario completo (todos los campos)
 export const actualizarUsuario = async (
   req: Request,
   res: Response,
@@ -116,13 +127,18 @@ export const actualizarUsuario = async (
   } = req.body;
 
   try {
+    let passwordHasheada = password;
+    if (password) {
+      passwordHasheada = await hash(password, 10);
+    }
+
     const usuarioActualizado = await prisma.usuario.update({
       where: { rut },
       data: {
         nombre,
         p_apellido,
         m_apellido: m_apellido || null,
-        password,
+        password: passwordHasheada,
         email,
         telefono,
         rol,
@@ -142,11 +158,12 @@ export const actualizarUsuario = async (
     console.error("Error al actualizar el usuario:", error);
     res.status(500).json({
       message: "Error al actualizar el usuario",
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
+// Actualización parcial (patch)
 export const actualizarParcialUsuario = async (
   req: Request,
   res: Response,
@@ -167,6 +184,10 @@ export const actualizarParcialUsuario = async (
       return;
     }
 
+    if (data.password) {
+      data.password = await hash(data.password, 10);
+    }
+
     // Actualización parcial
     const usuarioActualizado = await prisma.usuario.update({
       where: { rut },
@@ -181,11 +202,12 @@ export const actualizarParcialUsuario = async (
     console.error("Error al actualizar parcialmente:", error);
     res.status(500).json({
       message: "Error al actualizar el usuario",
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
+// Eliminar usuario
 export const eliminarUsuario = async (
   req: Request,
   res: Response,
@@ -217,7 +239,7 @@ export const eliminarUsuario = async (
     console.error("Error al eliminar usuario:", error);
     res.status(500).json({
       message: "Error al eliminar el usuario",
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };

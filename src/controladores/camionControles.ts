@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../models/prisma"; // Usa un solo PrismaClient
+import prisma from "../models/prisma";
 
+// Crear camión
 export const crearCamion = async (
   req: Request,
   res: Response,
@@ -26,8 +27,7 @@ export const crearCamion = async (
   } = req.body;
 
   try {
-    // 1. Crear camion
-    const crearCamion = await prisma.camion.create({
+    const camionCreado = await prisma.camion.create({
       data: {
         patente,
         tipoCamion,
@@ -43,16 +43,15 @@ export const crearCamion = async (
         tipoSello,
         combustible,
         kilometraje,
-        fRevisionTecnica,
-        fVencimientoSeguro,
-        permisoCirculacion,
+        fRevisionTecnica: new Date(fRevisionTecnica),
+        fVencimientoSeguro: new Date(fVencimientoSeguro),
+        permisoCirculacion: new Date(permisoCirculacion),
       },
     });
 
-    // 2. Respuesta
     res.status(201).json({
       message: "Camión creado correctamente",
-      data: { crearCamion },
+      data: camionCreado,
     });
   } catch (error) {
     console.error(error);
@@ -107,6 +106,7 @@ export const obtenerCamionPorPatente = async (
   }
 };
 
+// Actualizar camión
 export const actualizarCamion = async (
   req: Request,
   res: Response,
@@ -126,7 +126,18 @@ export const actualizarCamion = async (
 
     const camionActualizado = await prisma.camion.update({
       where: { patente },
-      data: datos,
+      data: {
+        ...datos,
+        fRevisionTecnica: datos.fRevisionTecnica
+          ? new Date(datos.fRevisionTecnica)
+          : undefined,
+        fVencimientoSeguro: datos.fVencimientoSeguro
+          ? new Date(datos.fVencimientoSeguro)
+          : undefined,
+        permisoCirculacion: datos.permisoCirculacion
+          ? new Date(datos.permisoCirculacion)
+          : undefined,
+      },
     });
 
     res.status(200).json({
@@ -142,6 +153,7 @@ export const actualizarCamion = async (
   }
 };
 
+// Eliminar camión
 export const eliminarCamion = async (
   req: Request,
   res: Response,

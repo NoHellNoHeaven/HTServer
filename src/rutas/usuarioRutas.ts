@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import {
   crearUsuario,
   actualizarParcialUsuario,
@@ -6,16 +6,16 @@ import {
   eliminarUsuario,
   obtenerUsuarioPorRut,
   obtenerUsuarios,
-} from "../controladores/usuarioControles";
+} from '../controladores/usuarioControles';
+import { verificarJWT} from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.post("/usuario", crearUsuario);
-router.get("/usuario", obtenerUsuarios);
-router.get("/usuario/:rut", obtenerUsuarioPorRut);
-router.put("/usuario/:rut", actualizarUsuario);
-router.patch("/usuario/:rut", actualizarParcialUsuario);
-router.delete("/usuario/:rut", eliminarUsuario);
+router.post('/usuario', crearUsuario); // abierto
+router.get('/usuario', verificarJWT, obtenerUsuarios); // protegido
+router.get('/usuario/:rut', verificarJWT, obtenerUsuarioPorRut);
+router.put('/usuario/:rut', verificarJWT, actualizarUsuario);
+router.patch('/usuario/:rut', verificarJWT, actualizarParcialUsuario);
+router.delete('/usuario/:rut', verificarJWT, eliminarUsuario);
 
 export default router;
-// Exportamos el router para que pueda ser utilizado en otros archivos

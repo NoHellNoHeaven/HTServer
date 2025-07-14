@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,20 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Definimos Roles para los usuarios a través de un enum
 // Enum para los roles de usuario
 enum Rol {
   Chofer
   Admin
 }
 
+// Enum para el estado de entidades
 enum Estado {
   Activo
   Inactivo
   Pendiente
 }
 
-model usuario {
+model Usuario {
   rut           String  @id
   nombre        String
   p_apellido    String
@@ -36,53 +30,54 @@ model usuario {
   telefono      String
   rol           Rol     @default(Chofer)
   licencia      String?
-  vencLicencia  String?
+  vencLicencia  DateTime?
   telEmergencia Int?
   direccion     String?
   estado        Estado  @default(Activo)
 }
 
-model camion {
-  patente            String @id
-  tipoCamion         String
-  marca              String
-  modelo             String
-  anio               Int
-  color              String
-  capacidad          Int?
-  nroMotor           String
-  nroChasis          String
-  fabrica            String
-  procedencia        String
-  tipoSello          String
-  combustible        String
-  kilometraje        Int
-  fRevisionTecnica   String
-  fVencimientoSeguro String
-  permisoCirculacion String
+model Camion {
+  patente             String     @id
+  tipoCamion          String
+  marca               String
+  modelo              String
+  anio                Int
+  color               String
+  capacidad           Int?
+  nroMotor            String
+  nroChasis           String
+  fabrica             String
+  procedencia         String
+  tipoSello           String
+  combustible         String
+  kilometraje         Int
+  fRevisionTecnica    DateTime
+  fVencimientoSeguro  DateTime
+  permisoCirculacion  DateTime
+  estado              Estado     @default(Activo)
 
-  mantencion mantencion[]
-  estado     Estado       @default(Activo)
-  alertas    alertas[]
+  mantenciones        Mantencion[]
+  alertas             Alerta[]
 }
 
-model mantencion {
-  id             Int    @id @default(autoincrement())
+model Mantencion {
+  id             Int       @id @default(autoincrement())
   patenteCamion  String
   tipoMantencion String
-  fecha          String
+  fecha          DateTime
   descripcion    String
-  estado         Estado @default(Activo)
+  estado         Estado    @default(Activo)
 
-  camion camion @relation(fields: [patenteCamion], references: [patente])
+  camion         Camion    @relation(fields: [patenteCamion], references: [patente])
 }
 
-model alertas {
-  id            Int    @id @default(autoincrement())
-  patenteCamion String
-  tipoAlerta    String
-  fecha         String
-  descripcion   String
-  estado        Estado @default(Activo)
-  camion        camion @relation(fields: [patenteCamion], references: [patente])
+model Alerta {
+  id             Int       @id @default(autoincrement())
+  patenteCamion  String
+  tipoAlerta     String
+  fecha          DateTime
+  descripcion    String
+  estado         Estado    @default(Activo)
+
+  camion         Camion    @relation(fields: [patenteCamion], references: [patente])
 }

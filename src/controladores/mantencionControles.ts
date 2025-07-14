@@ -1,18 +1,24 @@
 import { Request, Response } from "express";
-import prisma from "../models/prisma"; // Usa un solo PrismaClient
+import prisma from "../models/prisma";
 
 export const crearMantencion = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { patenteCamion, tipoMantencion, fecha, descripcion, estado } =
-    req.body;
+  const { patenteCamion, tipoMantencion, fecha, descripcion, estado } = req.body;
+
+  if (!patenteCamion || !tipoMantencion || !fecha) {
+    res.status(400).json({
+      message: "Faltan datos obligatorios: patenteCamion, tipoMantencion, fecha",
+    });
+    return;
+  }
 
   try {
-    const crearMantencion = await prisma.mantencion.create({
+    const mantencionCreada = await prisma.mantencion.create({
       data: {
         tipoMantencion,
-        fecha,
+        fecha: new Date(fecha),
         descripcion,
         estado,
         camion: {
@@ -23,7 +29,7 @@ export const crearMantencion = async (
 
     res.status(201).json({
       message: "Mantención creada correctamente",
-      data: crearMantencion,
+      data: mantencionCreada,
     });
   } catch (error) {
     console.error(error);
@@ -34,19 +40,20 @@ export const crearMantencion = async (
   }
 };
 
-// Obtener una mantención por ID
 export const obtenerMantencionPorId = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id } = req.params;
+  const idParsed = Number(req.params.id);
+  if (isNaN(idParsed)) {
+    res.status(400).json({ message: "ID inválido" });
+    return;
+  }
 
   try {
     const mantencion = await prisma.mantencion.findUnique({
-      where: { id: Number(id) },
-      include: {
-        camion: true, // Incluye los datos del camión relacionado
-      },
+      where: { id: idParsed },
+      include: { camion: true },
     });
 
     if (!mantencion) {
@@ -64,18 +71,14 @@ export const obtenerMantencionPorId = async (
   }
 };
 
-// Obtener todas las mantenciones
 export const obtenerTodasMantenciones = async (
   _req: Request,
   res: Response,
 ): Promise<void> => {
   try {
     const mantenciones = await prisma.mantencion.findMany({
-      include: {
-        camion: true,
-      },
+      include: { camion: true },
     });
-
     res.status(200).json(mantenciones);
   } catch (error) {
     console.error(error);
@@ -90,14 +93,17 @@ export const actualizarMantencion = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id } = req.params;
-  const { tipoMantencion, fecha, descripcion, estado, patenteCamion } =
-    req.body;
+  const idParsed = Number(req.params.id);
+  if (isNaN(idParsed)) {
+    res.status(400).json({ message: "ID inválido" });
+    return;
+  }
+
+  const { tipoMantencion, fecha, descripcion, estado, patenteCamion } = req.body;
 
   try {
-    // Verifica si la mantención existe antes de actualizar
     const mantencionExistente = await prisma.mantencion.findUnique({
-      where: { id: Number(id) },
+      where: { id: idParsed },
     });
 
     if (!mantencionExistente) {
@@ -106,10 +112,10 @@ export const actualizarMantencion = async (
     }
 
     const mantencionActualizada = await prisma.mantencion.update({
-      where: { id: Number(id) },
+      where: { id: idParsed },
       data: {
         tipoMantencion,
-        fecha,
+        fecha: fecha ? new Date(fecha) : undefined,
         descripcion,
         estado,
         ...(patenteCamion && {
@@ -137,11 +143,15 @@ export const eliminarMantencion = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id } = req.params;
+  const idParsed = Number(req.params.id);
+  if (isNaN(idParsed)) {
+    res.status(400).json({ message: "ID inválido" });
+    return;
+  }
 
   try {
     const mantencionEliminada = await prisma.mantencion.delete({
-      where: { id: Number(id) },
+      where: { id: idParsed },
     });
 
     res.status(200).json({

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../models/prisma";
 
+// Crear alerta
 export const crearAlertas = async (
   req: Request,
   res: Response,
@@ -21,10 +22,10 @@ export const crearAlertas = async (
   }
 
   try {
-    const alertaCreada = await prisma.alertas.create({
+    const alertaCreada = await prisma.alerta.create({
       data: {
         tipoAlerta,
-        fecha,
+        fecha: new Date(fecha),
         descripcion,
         estado,
         camion: {
@@ -41,19 +42,20 @@ export const crearAlertas = async (
     console.error(error);
     res.status(500).json({
       message: "Error al crear la alerta",
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
+// Obtener todas las alertas
 export const obtenerAlertas = async (
   _req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const alertas = await prisma.alertas.findMany({
+    const alertas = await prisma.alerta.findMany({
       include: {
-        camion: true, // Incluye detalles del camión si lo deseas
+        camion: true,
       },
     });
     res.status(200).json(alertas);
@@ -61,20 +63,25 @@ export const obtenerAlertas = async (
     console.error(error);
     res.status(500).json({
       message: "Error al obtener alertas",
-      error: error instanceof Error ? error.message : "Error desconocido",
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
+// Obtener una alerta por ID
 export const obtenerAlertaPorId = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id } = req.params;
+  const idParsed = Number(req.params.id);
+  if (isNaN(idParsed)) {
+    res.status(400).json({ message: "ID inválido" });
+    return;
+  }
 
   try {
-    const alerta = await prisma.alertas.findUnique({
-      where: { id: Number(id) },
+    const alerta = await prisma.alerta.findUnique({
+      where: { id: idParsed },
       include: {
         camion: true,
       },
@@ -90,21 +97,27 @@ export const obtenerAlertaPorId = async (
     console.error(error);
     res.status(500).json({
       message: "Error al obtener alerta",
-      error: error instanceof Error ? error.message : "Error desconocido",
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
+// Actualizar una alerta
 export const actualizarAlerta = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id } = req.params;
+  const idParsed = Number(req.params.id);
+  if (isNaN(idParsed)) {
+    res.status(400).json({ message: "ID inválido" });
+    return;
+  }
+
   const { tipoAlerta, fecha, descripcion, estado, patenteCamion } = req.body;
 
   try {
-    const alertaExistente = await prisma.alertas.findUnique({
-      where: { id: Number(id) },
+    const alertaExistente = await prisma.alerta.findUnique({
+      where: { id: idParsed },
     });
 
     if (!alertaExistente) {
@@ -112,11 +125,11 @@ export const actualizarAlerta = async (
       return;
     }
 
-    const alertaActualizada = await prisma.alertas.update({
-      where: { id: Number(id) },
+    const alertaActualizada = await prisma.alerta.update({
+      where: { id: idParsed },
       data: {
         tipoAlerta,
-        fecha,
+        fecha: fecha ? new Date(fecha) : undefined,
         descripcion,
         estado,
         ...(patenteCamion && {
@@ -135,20 +148,25 @@ export const actualizarAlerta = async (
     console.error(error);
     res.status(500).json({
       message: "Error al actualizar alerta",
-      error: error instanceof Error ? error.message : "Error desconocido",
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
 
+// Eliminar una alerta
 export const eliminarAlerta = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
-  const { id } = req.params;
+  const idParsed = Number(req.params.id);
+  if (isNaN(idParsed)) {
+    res.status(400).json({ message: "ID inválido" });
+    return;
+  }
 
   try {
-    const alertaEliminada = await prisma.alertas.delete({
-      where: { id: Number(id) },
+    const alertaEliminada = await prisma.alerta.delete({
+      where: { id: idParsed },
     });
 
     res.status(200).json({
@@ -159,7 +177,7 @@ export const eliminarAlerta = async (
     console.error(error);
     res.status(500).json({
       message: "Error al eliminar alerta",
-      error: error instanceof Error ? error.message : "Error desconocido",
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 };
