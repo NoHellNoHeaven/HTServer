@@ -7,11 +7,11 @@ import { eliminarMantencion } from "../controladores/mantencionControles";
 
 const router = express.Router();
 
-router.post("/mantencion", crearMantencion);
-router.put("/mantencion", actualizarMantencion);
-router.patch("/mantencion/:id", actualizarMantencion);
-router.get("/mantencion", obtenerTodasMantenciones);
-router.get("/mantencion/:id", obtenerMantencionPorId);
-router.delete("/mantencion", eliminarMantencion);
+router.post("/", crearMantencion);
+router.put("/", actualizarMantencion);
+router.patch("/:id", actualizarMantencion);
+router.get("/", obtenerTodasMantenciones);
+router.get("/:id", obtenerMantencionPorId);
+router.delete("/", eliminarMantencion);
 
 export default router;

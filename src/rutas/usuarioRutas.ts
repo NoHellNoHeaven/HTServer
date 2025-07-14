@@ -11,11 +11,11 @@ import { verificarJWT} from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.post('/usuario', crearUsuario); // abierto
-router.get('/usuario', verificarJWT, obtenerUsuarios); // protegido
-router.get('/usuario/:rut', verificarJWT, obtenerUsuarioPorRut);
-router.put('/usuario/:rut', verificarJWT, actualizarUsuario);
-router.patch('/usuario/:rut', verificarJWT, actualizarParcialUsuario);
-router.delete('/usuario/:rut', verificarJWT, eliminarUsuario);
+router.post('/', crearUsuario); // abierto
+router.get('/', verificarJWT, obtenerUsuarios); // protegido
+router.get('/:rut', verificarJWT, obtenerUsuarioPorRut);
+router.put('/:rut', verificarJWT, actualizarUsuario);
+router.patch('/:rut', verificarJWT, actualizarParcialUsuario);
+router.delete('/:rut', verificarJWT, eliminarUsuario);
 
 export default router;

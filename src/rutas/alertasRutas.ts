@@ -9,11 +9,11 @@ import {
 
 const router = express.Router();
 
-router.post("/alertas", crearAlertas);
-router.get("/alertas", obtenerAlertas);
-router.get("/alertas/:id", obtenerAlertaPorId);
-router.put("/alertas/:id", actualizarAlerta);
-router.patch("/alertas/:id", actualizarAlerta);
-router.delete("/alertas/:id", eliminarAlerta);
+router.post("/", crearAlertas);
+router.get("/", obtenerAlertas);
+router.get("/:id", obtenerAlertaPorId);
+router.put("/:id", actualizarAlerta);
+router.patch("/:id", actualizarAlerta);
+router.delete("/:id", eliminarAlerta);
 
 export default router;

@@ -1,30 +1,27 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "Rol" AS ENUM ('Chofer', 'Admin');
 
-  - The `vencLicencia` column on the `Usuario` table would be dropped and recreated. This will lead to data loss if there is data in the column.
-  - You are about to drop the `alertas` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `camion` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `mantencion` table. If the table is not empty, all the data it contains will be lost.
+-- CreateEnum
+CREATE TYPE "Estado" AS ENUM ('Activo', 'Inactivo', 'Pendiente');
 
-*/
--- DropForeignKey
-ALTER TABLE "alertas" DROP CONSTRAINT "alertas_patenteCamion_fkey";
+-- CreateTable
+CREATE TABLE "Usuario" (
+    "rut" TEXT NOT NULL,
+    "nombre" TEXT NOT NULL,
+    "p_apellido" TEXT NOT NULL,
+    "m_apellido" TEXT,
+    "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "telefono" TEXT NOT NULL,
+    "rol" "Rol" NOT NULL DEFAULT 'Chofer',
+    "licencia" TEXT,
+    "vencLicencia" TIMESTAMP(3),
+    "telEmergencia" INTEGER,
+    "direccion" TEXT,
+    "estado" "Estado" NOT NULL DEFAULT 'Activo',
 
--- DropForeignKey
-ALTER TABLE "mantencion" DROP CONSTRAINT "mantencion_patenteCamion_fkey";
-
--- AlterTable
-ALTER TABLE "Usuario" DROP COLUMN "vencLicencia",
-ADD COLUMN     "vencLicencia" TIMESTAMP(3);
-
--- DropTable
-DROP TABLE "alertas";
-
--- DropTable
-DROP TABLE "camion";
-
--- DropTable
-DROP TABLE "mantencion";
+    CONSTRAINT "Usuario_pkey" PRIMARY KEY ("rut")
+);
 
 -- CreateTable
 CREATE TABLE "Camion" (
@@ -73,6 +70,9 @@ CREATE TABLE "Alerta" (
 
     CONSTRAINT "Alerta_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
 
 -- AddForeignKey
 ALTER TABLE "Mantencion" ADD CONSTRAINT "Mantencion_patenteCamion_fkey" FOREIGN KEY ("patenteCamion") REFERENCES "Camion"("patente") ON DELETE RESTRICT ON UPDATE CASCADE;
