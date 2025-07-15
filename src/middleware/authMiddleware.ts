@@ -1,10 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import prisma from '../models/prisma';
-import { Usuario } from '@prisma/client';
 
 interface RequestConUsuario extends Request {
-  usuario?: Usuario;
+  usuario?: any;
 }
 
 export const verificarJWT = async (
@@ -21,8 +20,8 @@ export const verificarJWT = async (
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = verifyToken(token) as { rut: string; rol: string };
-    const usuario = await prisma.usuario.findUnique({ where: { rut: decoded.rut } });
+    const decoded = verifyToken(token) as { email: string; rol: string };
+    const usuario = await prisma.usuario.findUnique({ where: { email: decoded.email } });
 
     if (!usuario || usuario.estado !== 'Activo') {
       res.status(401).json({ message: 'Usuario inválido o inactivo' });

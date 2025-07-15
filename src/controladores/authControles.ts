@@ -30,13 +30,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = generateToken({ rut: usuario.rut, rol: usuario.rol });
+    const token = generateToken({ email: usuario.email, rol: usuario.rol });
 
     res.status(200).json({
       message: 'Inicio de sesión exitoso',
       token,
       usuario: {
-        rut: usuario.rut,
+        email: usuario.email,
         nombre: usuario.nombre,
         rol: usuario.rol,
       },
