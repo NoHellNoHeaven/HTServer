@@ -28,7 +28,7 @@ export const verificarJWT = async (
     console.log(`Estado del usuario ${usuario?.email}:`, usuario?.estado);
 
 
-    if (!usuario || usuario.estado?.toLocaleLowerCase() !== 'ACTIVO') {
+    if (!usuario || usuario.estado?.toLocaleLowerCase() !== 'activo') {
       res.status(401).json({ message: 'Usuario inválido o inactivo' });
       return;
     }
