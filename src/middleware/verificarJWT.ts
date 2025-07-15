@@ -26,7 +26,7 @@ export const verificarJWT = async (
 
     const usuario = await prisma.usuario.findUnique({ where: { email: decoded.email} });
 
-    if (!usuario || usuario.estado !== 'Activo') {
+    if (!usuario || usuario.estado !== 'ACTIVO') {
       res.status(401).json({ message: 'Usuario inválido o inactivo' });
       return;
     }
