@@ -30,7 +30,7 @@ app.use('/auth', authRutas);
 
 // Rutas públicas
 app.use("/usuario", usuarioRutas);
-app.use("/camion", camionRutas);
+app.use("/camiones", camionRutas);
 app.use("/alertas", alertasRutas);
 app.use("/mantencion", mantencionRutas);
 
