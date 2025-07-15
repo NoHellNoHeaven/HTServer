@@ -24,7 +24,7 @@ export const verificarJWT = async (
   try {
     const decoded = verifyToken(token);
 
-    const usuario = await prisma.usuario.findUnique({ where: { rut: decoded.rut } });
+    const usuario = await prisma.usuario.findUnique({ where: { email: decoded.email} });
 
     if (!usuario || usuario.estado !== 'Activo') {
       res.status(401).json({ message: 'Usuario inválido o inactivo' });
