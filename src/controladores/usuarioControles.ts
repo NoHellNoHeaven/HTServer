@@ -25,17 +25,18 @@ export const crearUsuario = async (
     estado,
   } = req.body;
 
-  // Validar campos obligatorios
   if (!rut || !nombre || !p_apellido || !password || !email || !telefono || !licencia) {
-    res.status(400).json({
-      message: "Faltan campos obligatorios",
-      camposFaltantes: ["rut", "nombre", "p_apellido", "email", "password", "telefono", "licencia"],
-    });
-    return;
-  }
+  console.warn("Faltan datos:", { rut, nombre, p_apellido, password, email, telefono, licencia });
+  res.status(400).json({
+    message: "Faltan campos obligatorios",
+    camposFaltantes: ["rut", "nombre", "p_apellido", "email", "password", "telefono", "licencia"],
+  });
+  return;
+}
 
   // Validar estado o usar valor por defecto
   const estadoValidado = estado && estadosValidos.includes(estado) ? estado : "ACTIVO";
+  console.log("Intentando crear usuario:", req.body);
 
   try {
     // Verificar existencia de usuario por rut o email
