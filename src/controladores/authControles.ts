@@ -4,15 +4,15 @@ import { compare } from 'bcrypt';
 import { generateToken } from '../utils/jwt';
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const { rut, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!rut || !password) {
-    res.status(400).json({ message: 'Rut y contraseña son obligatorios' });
+  if (!email || !password) {
+    res.status(400).json({ message: 'Email y contraseña son obligatorios' });
     return;
   }
 
   try {
-    const usuario = await prisma.usuario.findUnique({ where: { rut } });
+    const usuario = await prisma.usuario.findUnique({ where: { email } });
 
     if (!usuario) {
       res.status(404).json({ message: 'Usuario no encontrado' });
