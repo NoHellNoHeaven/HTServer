@@ -209,6 +209,18 @@ export const completarMantencion = async (
     // Calcula el nuevo proximoKilometraje
     const nuevoProximoKm = (mantencion.camion.kilometraje || 0) + (mantencion.kilometraje || 0);
 
+    // Registrar en el historial de mantenciones
+    await prisma.historialMantencion.create({
+      data: {
+        camionPatente: mantencion.camionPatente,
+        camionMarca: mantencion.camion.marca,
+        camionModelo: mantencion.camion.modelo,
+        mantencionNombre: mantencion.nombre,
+        mantencionAccion: mantencion.accion,
+        kilometrajeRealizado: mantencion.camion.kilometraje || 0,
+      },
+    });
+
     // Reprograma la mantención (solo actualiza proximoKilometraje)
     const mantencionActualizada = await prisma.mantencion.update({
       where: { id: Number(id) },
@@ -219,13 +231,13 @@ export const completarMantencion = async (
     });
 
     res.status(200).json({
-      message: "Mantención reprogramada",
+      message: "Mantención completada y registrada en historial",
       data: mantencionActualizada,
     });
   } catch (error) {
     console.error("Error en completarMantencion:", error);
     res.status(500).json({
-      message: "Error al reprogramar mantención",
+      message: "Error al completar mantención",
       error: error instanceof Error ? error.message : "Error desconocido",
     });
   }

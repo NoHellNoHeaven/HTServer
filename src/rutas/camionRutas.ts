@@ -11,7 +11,6 @@ import {
 const router = express.Router();
 
 router.put("/mantenciones/:id/completar", completarMantencion);
-
 router.post("/", crearCamion);
 router.get("/", obtenerCamiones);
 router.get("/:patente", obtenerCamionPorPatente);

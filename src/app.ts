@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import usuarioRutas from "./rutas/usuarioRutas";
 import camionRutas from "./rutas/camionRutas";
+import historialMantencionesRutas from "./rutas/historialMantencionesRutas";
 
 import protegidasRoutes from './rutas/protegidasRutas';
 import authRutas from './rutas/authRutas';
@@ -30,6 +31,7 @@ app.use('/auth', authRutas);
 // Rutas públicas
 app.use("/usuario", usuarioRutas);
 app.use("/camiones", camionRutas);
+app.use("/historial-mantenciones", historialMantencionesRutas);
 
 // Rutas protegidas
 app.use('/api/protegidas', protegidasRoutes);

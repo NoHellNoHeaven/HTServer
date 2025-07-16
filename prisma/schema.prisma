@@ -47,6 +47,7 @@ model Camion {
   fRevisionTecnica   DateTime?
   estado             String
   mantenciones       Mantencion[]
+  historialMantenciones HistorialMantencion[]
 }
 
 model Mantencion {
@@ -60,4 +61,22 @@ model Mantencion {
 
   camion Camion @relation(fields: [camionPatente], references: [patente], onDelete: Cascade)
 }
+
+model HistorialMantencion {
+  id                   Int      @id @default(autoincrement())
+  fechaRealizada       DateTime @default(now())
+  camionPatente        String
+  camionMarca          String
+  camionModelo         String
+  mantencionNombre     String
+  mantencionAccion     String
+  kilometrajeRealizado Int
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  camion Camion @relation(fields: [camionPatente], references: [patente], onDelete: Cascade)
+
+  @@map("historial_mantenciones")
+}
+
 
