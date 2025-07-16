@@ -189,6 +189,8 @@ export const completarMantencion = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  console.log("Llamada a completarMantencion. Params:", req.params);
+
   const { id } = req.params;
 
   try {
@@ -199,6 +201,7 @@ export const completarMantencion = async (
     });
 
     if (!mantencion) {
+      console.log("Mantención no encontrada para id:", id);
       res.status(404).json({ message: "Mantención no encontrada" });
       return;
     }
@@ -220,7 +223,7 @@ export const completarMantencion = async (
       data: mantencionActualizada,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error en completarMantencion:", error);
     res.status(500).json({
       message: "Error al reprogramar mantención",
       error: error instanceof Error ? error.message : "Error desconocido",
