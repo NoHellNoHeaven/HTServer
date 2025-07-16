@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import mantencionRutas from "./rutas/camionRutas"; // O el archivo donde pusiste la ruta
 
 import usuarioRutas from "./rutas/usuarioRutas";
 import camionRutas from "./rutas/camionRutas";
@@ -35,5 +36,5 @@ app.use("/camiones", camionRutas);
 app.use('/api/protegidas', protegidasRoutes);
 
 console.log("Levantando app...");
-
+app.use(mantencionRutas);
 export default app;
