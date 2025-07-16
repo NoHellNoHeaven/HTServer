@@ -10,7 +10,7 @@ import {
 
 const router = express.Router();
 
-router.put("/api/mantenciones/:id/completar", completarMantencion);
+router.put("/mantenciones/:id/completar", completarMantencion);
 
 router.post("/", crearCamion);
 router.get("/", obtenerCamiones);
