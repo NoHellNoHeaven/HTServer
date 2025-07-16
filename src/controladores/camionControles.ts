@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../models/prisma";
 
-// Crear camión
+// Crear camión y mantenciones
 export const crearCamion = async (
   req: Request,
   res: Response,
@@ -13,7 +13,6 @@ export const crearCamion = async (
     modelo,
     anio,
     color,
-    capacidad,
     nroMotor,
     nroChasis,
     fabrica,
@@ -22,45 +21,74 @@ export const crearCamion = async (
     combustible,
     kilometraje,
     fRevisionTecnica,
-    fVencimientoSeguro,
-    permisoCirculacion,
+    mantenciones = [],
   } = req.body;
 
   try {
+    let fechaRevision = null;
+    if (typeof fRevisionTecnica === "string" && fRevisionTecnica.trim() !== "") {
+      let fechaString = fRevisionTecnica.trim();
+      // Si el formato es yyyy-MM, agregar el día 01
+      if (/^\d{4}-\d{2}$/.test(fechaString)) {
+        fechaString += "-01";
+      }
+      fechaRevision = new Date(fechaString);
+      // Si la fecha es inválida, simplemente no la uses
+      if (isNaN(fechaRevision.getTime())) {
+        fechaRevision = null;
+      }
+    }
+
+    const data: any = {
+      patente,
+      tipoCamion,
+      marca,
+      modelo,
+      anio,
+      color,
+      nroMotor,
+      nroChasis,
+      fabrica,
+      procedencia,
+      tipoSello,
+      combustible,
+      kilometraje,
+      estado: "activo",
+    };
+    if (fechaRevision) {
+      data.fRevisionTecnica = fechaRevision;
+    }
+
     const camionCreado = await prisma.camion.create({
-      data: {
-        patente,
-        tipoCamion,
-        marca,
-        modelo,
-        anio,
-        color,
-        capacidad,
-        nroMotor,
-        nroChasis,
-        fabrica,
-        procedencia,
-        tipoSello,
-        combustible,
-        kilometraje,
-        fRevisionTecnica: new Date(fRevisionTecnica),
-        fVencimientoSeguro: new Date(fVencimientoSeguro),
-        permisoCirculacion: new Date(permisoCirculacion),
-      },
+      data,
     });
 
+    if (mantenciones.length > 0) {
+      await prisma.mantencion.createMany({
+        data: mantenciones.map((m: any) => ({
+          camionPatente: patente,
+          nombre: m.nombre,
+          accion: m.accion,
+          kilometraje: m.kilometraje,
+          meses: m.meses ?? 0,
+          proximoKilometraje: m.proximoKilometraje,
+        })),
+      });
+    }
+
     res.status(201).json({
-      message: "Camión creado correctamente",
+      message: "Camión y mantenciones creados correctamente",
       data: camionCreado,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error al crear camión:", error);
     res.status(500).json({
       message: "Error al crear el camión",
       error: error instanceof Error ? error.message : "Error desconocido",
     });
   }
 };
+
 
 // Obtener todos los camiones
 export const obtenerCamiones = async (
@@ -79,7 +107,7 @@ export const obtenerCamiones = async (
   }
 };
 
-// Obtener camión por patente
+// Obtener camión por patente (incluye mantenciones)
 export const obtenerCamionPorPatente = async (
   req: Request,
   res: Response,
@@ -89,6 +117,9 @@ export const obtenerCamionPorPatente = async (
   try {
     const camion = await prisma.camion.findUnique({
       where: { patente },
+      include: {
+        mantenciones: true, // Incluir mantenciones relacionadas
+      },
     });
 
     if (!camion) {
@@ -130,12 +161,6 @@ export const actualizarCamion = async (
         ...datos,
         fRevisionTecnica: datos.fRevisionTecnica
           ? new Date(datos.fRevisionTecnica)
-          : undefined,
-        fVencimientoSeguro: datos.fVencimientoSeguro
-          ? new Date(datos.fVencimientoSeguro)
-          : undefined,
-        permisoCirculacion: datos.permisoCirculacion
-          ? new Date(datos.permisoCirculacion)
           : undefined,
       },
     });

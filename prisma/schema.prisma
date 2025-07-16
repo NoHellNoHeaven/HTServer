@@ -31,47 +31,33 @@ model Usuario {
 }
 
 model Camion {
-  patente             String     @id
-  tipoCamion          String
-  marca               String
-  modelo              String
-  anio                Int
-  color               String
-  capacidad           Int?
-  nroMotor            String
-  nroChasis           String
-  fabrica             String
-  procedencia         String
-  tipoSello           String
-  combustible         String
-  kilometraje         Int
-  fRevisionTecnica    DateTime
-  fVencimientoSeguro  DateTime
-  permisoCirculacion  DateTime
-  estado              String?    
-
-  mantenciones        Mantencion[]
-  alertas             Alerta[]
+  patente            String       @id
+  tipoCamion         String
+  marca              String
+  modelo             String
+  anio               Int
+  color              String
+  nroMotor           String
+  nroChasis          String
+  fabrica            String
+  procedencia        String
+  tipoSello          String
+  combustible        String
+  kilometraje        Int
+  fRevisionTecnica   DateTime
+  estado             String
+  mantenciones       Mantencion[]
 }
 
 model Mantencion {
-  id             Int       @id @default(autoincrement())
-  patenteCamion  String
-  tipoMantencion String
-  fecha          DateTime
-  descripcion    String
-  estado         String?    
+  id                 Int      @id @default(autoincrement())
+  camionPatente      String
+  nombre             String
+  accion             String
+  kilometraje        Int
+  meses              Int
+  proximoKilometraje Int
 
-  camion         Camion    @relation(fields: [patenteCamion], references: [patente])
+  camion Camion @relation(fields: [camionPatente], references: [patente], onDelete: Cascade)
 }
 
-model Alerta {
-  id             Int       @id @default(autoincrement())
-  patenteCamion  String
-  tipoAlerta     String
-  fecha          DateTime
-  descripcion    String
-  estado         String?   
-
-  camion         Camion    @relation(fields: [patenteCamion], references: [patente])
-}
