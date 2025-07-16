@@ -155,7 +155,8 @@ export const actualizarCamion = async (
       return;
     }
 
-    const camionActualizado = await prisma.camion.update({
+    // Actualiza el camión
+    await prisma.camion.update({
       where: { patente },
       data: {
         ...datos,
@@ -165,9 +166,15 @@ export const actualizarCamion = async (
       },
     });
 
+    // Vuelve a buscar el camión, pero ahora incluyendo las mantenciones
+    const camionConMantenciones = await prisma.camion.findUnique({
+      where: { patente },
+      include: { mantenciones: true },
+    });
+
     res.status(200).json({
       message: "Camión actualizado correctamente",
-      data: camionActualizado,
+      data: camionConMantenciones,
     });
   } catch (error) {
     console.error(error);
