@@ -184,7 +184,49 @@ export const actualizarCamion = async (
     });
   }
 };
+// Reprogramar mantención (al marcar como completada)
+export const completarMantencion = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
 
+  try {
+    // Busca la mantención y el camión asociado
+    const mantencion = await prisma.mantencion.findUnique({
+      where: { id: Number(id) },
+      include: { camion: true }
+    });
+
+    if (!mantencion) {
+      res.status(404).json({ message: "Mantención no encontrada" });
+      return;
+    }
+
+    // Calcula el nuevo proximoKilometraje
+    const nuevoProximoKm = (mantencion.camion.kilometraje || 0) + (mantencion.kilometraje || 0);
+
+    // Reprograma la mantención (solo actualiza proximoKilometraje)
+    const mantencionActualizada = await prisma.mantencion.update({
+      where: { id: Number(id) },
+      data: {
+        proximoKilometraje: nuevoProximoKm,
+        // Si usas meses y quieres actualizar la fecha, hazlo aquí
+      },
+    });
+
+    res.status(200).json({
+      message: "Mantención reprogramada",
+      data: mantencionActualizada,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error al reprogramar mantención",
+      error: error instanceof Error ? error.message : "Error desconocido",
+    });
+  }
+};
 // Eliminar camión
 export const eliminarCamion = async (
   req: Request,

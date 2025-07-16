@@ -5,6 +5,7 @@ import {
   eliminarCamion,
   obtenerCamionPorPatente,
   obtenerCamiones,
+  completarMantencion,
 } from "../controladores/camionControles";
 
 const router = express.Router();
@@ -15,5 +16,5 @@ router.get("/:patente", obtenerCamionPorPatente);
 router.put("/:patente", actualizarCamion);
 router.patch("/:patente", actualizarCamion);
 router.delete("/:patente", eliminarCamion);
-
+router.put('/mantenciones/:id/completar', completarMantencion); 
 export default router;
