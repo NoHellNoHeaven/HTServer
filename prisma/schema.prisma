@@ -44,7 +44,7 @@ model Camion {
   tipoSello          String
   combustible        String
   kilometraje        Int
-  fRevisionTecnica   DateTime
+  fRevisionTecnica   DateTime?
   estado             String
   mantenciones       Mantencion[]
 }
