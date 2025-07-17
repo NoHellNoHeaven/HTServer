@@ -164,19 +164,9 @@ export const actualizarCamion = async (
       where: { patente },
       data: {
         ...datos,
-        fRevisionTecnica: (() => {
-          if (typeof datos.fRevisionTecnica === "string" && datos.fRevisionTecnica.trim() !== "") {
-            let fechaString = datos.fRevisionTecnica.trim();
-            if (/^\d{4}-\d{2}$/.test(fechaString)) {
-              fechaString += "-01";
-            }
-            const fechaRevision = new Date(fechaString);
-            if (!isNaN(fechaRevision.getTime())) {
-              return fechaRevision;
-            }
-          }
-          return undefined;
-        })(),
+        fRevisionTecnica: datos.fRevisionTecnica
+          ? new Date(datos.fRevisionTecnica)
+          : undefined,
       },
     });
 
