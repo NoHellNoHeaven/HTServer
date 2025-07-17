@@ -3,7 +3,7 @@ import prisma from "../models/prisma";
 import { hash } from "bcrypt";
 import { Prisma } from "@prisma/client";
 
-const estadosValidos = ["ACTIVO", "INACTIVO"];
+const estadosValidos = ["Activo", "Inactivo"];
 
 export const crearUsuario = async (
   req: Request,
@@ -35,7 +35,7 @@ export const crearUsuario = async (
 }
 
   // Validar estado o usar valor por defecto
-  const estadoValidado = estado && estadosValidos.includes(estado) ? estado : "ACTIVO";
+  const estadoValidado = estado && estadosValidos.includes(estado) ? estado : "Activo";
   console.log("Intentando crear usuario:", req.body);
 
   try {
