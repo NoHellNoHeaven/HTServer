@@ -96,7 +96,11 @@ export const obtenerCamiones = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const camiones = await prisma.camion.findMany();
+    const camiones = await prisma.camion.findMany({
+      include: {
+        mantenciones: true, // Incluir mantenciones relacionadas
+      },
+    });
     res.status(200).json(camiones);
   } catch (error) {
     console.error(error);
